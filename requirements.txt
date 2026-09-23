@@ -1,0 +1,7 @@
+# Immediate presentation-phase data exploration
+numpy
+pandas
+matplotlib
+jupyter
+openpyxl
+

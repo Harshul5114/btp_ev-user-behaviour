@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data: preserve folder placeholders only; never version datasets by default.
+/data/raw/*
+/data/interim/*
+/data/processed/*
+!/data/raw/.gitkeep
+!/data/interim/.gitkeep
+!/data/processed/.gitkeep
+
+# Generated artefacts: preserve folder placeholders only.
+/outputs/*
+!/outputs/.gitkeep
+!/outputs/figures/
+!/outputs/tables/
+!/outputs/presentation/
+/outputs/figures/*
+/outputs/tables/*
+/outputs/presentation/*
+!/outputs/figures/.gitkeep
+!/outputs/tables/.gitkeep
+!/outputs/presentation/.gitkeep
