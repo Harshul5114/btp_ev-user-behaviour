@@ -57,6 +57,20 @@ class SimulationResult:
         return float(self.events.driving_kwh.sum())
 
 
+@dataclass
+class SyntheticOvernightCharge:
+    """Assumed terminal Home stay; power is folded onto the survey-day clock."""
+
+    power_kw: np.ndarray
+    arrival_min: float | None = None
+    departure_min: float | None = None
+    charge_end_min: float | None = None
+
+    @property
+    def grid_energy_kwh(self) -> float:
+        return float(self.power_kw.sum() * BIN_MIN / 60)
+
+
 def _validate_chain(legs: pd.DataFrame, gaps: pd.DataFrame) -> tuple[str, pd.DataFrame, pd.DataFrame]:
     if legs.empty or legs.VEHCASEID.nunique() != 1:
         raise ValueError("Pass the legs of exactly one household vehicle")
@@ -199,3 +213,47 @@ def simulate_vehicle(legs: pd.DataFrame, gaps: pd.DataFrame,
     if soc.min() < -_TOL or soc.max() > 1 + _TOL:
         raise AssertionError("Simulated SoC left physical [0, 1] bounds")
     return SimulationResult(vehicle_id, table, power, soc, True)
+
+
+def reconstruct_terminal_home_charge(legs: pd.DataFrame, baseline: SimulationResult,
+                                     params: EVParameters) -> SyntheticOvernightCharge:
+    """Add a synthetic Home stay after the final trip, with next-day departure.
+
+    The next departure is the same vehicle-day's first departure plus 24 hours.
+    Charge starts at final Home arrival and stops at that departure or target SoC.
+    Any portion after next-day 04:00 is folded onto the representative 04:00–04:00
+    clock profile; this is a cyclic scenario assumption, not a second observation.
+    """
+    if not baseline.feasible:
+        raise ValueError("Terminal charging requires a feasible baseline result")
+    if len(baseline.power_kw) != len(BIN_STARTS_MIN):
+        raise ValueError("Baseline power has the wrong number of bins")
+    ordered = legs.sort_values("vehicle_leg_index")
+    power = np.zeros(len(BIN_STARTS_MIN), dtype=float)
+    last = ordered.iloc[-1]
+    if last.destination_group != "Home":
+        return SyntheticOvernightCharge(power)
+    arrival = float(last.survey_end_min)
+    departure = float(ordered.iloc[0].survey_start_min) + 1440
+    if not np.isfinite([arrival, departure]).all() or not DAY_START_MIN <= arrival <= DAY_END_MIN:
+        raise ValueError("Invalid terminal arrival time")
+    if departure <= arrival:
+        raise ValueError("Synthetic next-day departure must follow final arrival")
+    remaining_kwh = params.battery_capacity_kwh * (params.target_soc - baseline.soc_fraction[-1])
+    if remaining_kwh <= _TOL:
+        return SyntheticOvernightCharge(power, arrival, departure, arrival)
+    charge_end = min(departure, arrival + 60 * remaining_kwh
+                     / (params.charging_efficiency * params.home_charger_grid_kw))
+    # The survey starts at 04:00. Fold the next morning's charging back into
+    # that clock position, so both scenarios have the same 96-bin axis.
+    for day_offset in (0, 1440):
+        starts = BIN_STARTS_MIN + day_offset
+        overlap = np.maximum(0, np.minimum(starts + BIN_MIN, charge_end)
+                             - np.maximum(starts, arrival))
+        power += params.home_charger_grid_kw * overlap / BIN_MIN
+    expected = params.home_charger_grid_kw * (charge_end - arrival) / 60
+    if not np.isclose(power.sum() * BIN_MIN / 60, expected, atol=_TOL):
+        raise AssertionError("Synthetic charging energy was lost at the day boundary")
+    if np.max(baseline.power_kw + power) > params.home_charger_grid_kw + _TOL:
+        raise AssertionError("Synthetic charging overlaps baseline charging for one vehicle")
+    return SyntheticOvernightCharge(power, arrival, departure, charge_end)
