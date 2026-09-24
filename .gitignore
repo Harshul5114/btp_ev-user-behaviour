@@ -35,7 +35,11 @@ Thumbs.db
 !/outputs/figures/
 !/outputs/tables/
 !/outputs/presentation/
-/outputs/figures/*
+/outputs/figures/**
+!/outputs/figures/**/
+!/outputs/figures/**/*.png
+!/outputs/figures/**/*.svg
+!/outputs/figures/**/*.pdf
 /outputs/tables/*
 /outputs/presentation/*
 !/outputs/figures/.gitkeep
