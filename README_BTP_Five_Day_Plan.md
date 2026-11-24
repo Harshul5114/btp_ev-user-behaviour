@@ -84,9 +84,12 @@ only. Do not randomly split rows if it leaks future sessions or
 repeated-user patterns. Do not use target proxies. Do not treat inferred
 fields as ground truth.
 
-**Deliver:** reproducible script/notebook, `outputs/ml_metrics.csv`,
-`outputs/ml_actual_vs_predicted.png`, `docs/ML_EXPERIMENT.md`. Do not
-claim the model predicts behaviour beyond its actual target.
+**Deliver:** reproducible scripts/notebooks:
+- Session energy: `src/models/session_energy.py`, `notebooks/06_ml_session_energy.ipynb`, `outputs/ml_metrics.csv`, `outputs/ml_actual_vs_predicted.png`, `docs/ML_EXPERIMENT.md`.
+- Session timing (plug-in/plug-out & inter-session gaps): `src/models/charging_times.py`, `notebooks/07_ml_plugin_plugout_times.ipynb`, `outputs/ml_charging_times_metrics.csv`, diagnostic figures in `outputs/`.
+- Consolidated ML documentation: `docs/ML_README.md` (and `ML_README.md`).
+
+Do not claim the models predict behaviour beyond their actual targets.
 
 ## Day 3 --- Charging-demand comparison
 

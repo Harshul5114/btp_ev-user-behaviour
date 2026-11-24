@@ -23,10 +23,13 @@ The completed ML experiment predicts delivered energy for a future residential c
 | `notebooks/03_trip_chains.ipynb` | Candidate vehicle trip-chain and internal parking-gap derivation; writes interim CSVs and trip-chain figures. |
 | `notebooks/04_ev_charging_data_analysis.ipynb` | Standalone audit and EDA of Norway charging reports and their associated model-derived tables. |
 | `notebooks/05_ev_load_prototype.ipynb`, `src/charging/simple_ev.py` | Configurable rule-based EV energy/SoC and home-charging simulation; compares observed internal Home gaps with a separately assumed synthetic terminal Home stay. |
+| `notebooks/06_ml_session_energy.ipynb`, `src/models/session_energy.py` | Causal future-session charging energy prediction experiment with chronological and unseen-user evaluations. |
+| `notebooks/07_ml_plugin_plugout_times.ipynb`, `src/models/charging_times.py` | Causal plug-out duration (`connection_time`) and next plug-in timing (`next_gap_hours`) prediction with empirical NHTS mobility priors and quantile uncertainty envelopes. |
 | `docs/methodology/` | NHTS mappings, trip-chain schema, Norway provenance/use note, and EV prototype assumptions. |
-| `outputs/figures/` | Existing travel EDA, trip-chain, Norway charging, and EV prototype plots. The two EV aggregate figures are `02_aggregate_home_charging_sample.png` and `03_aggregate_home_charging_synthetic_overnight.png`. |
-| `outputs/tables/`, `outputs/presentation/` | No generated tables or presentation identified; only `.gitkeep` files. |
-| `src/models/`, `src/grid/`, other `src/` packages | Package placeholders; no ML or grid model implementation identified. |
+| `docs/ML_README.md`, `docs/ML_EXPERIMENT.md` | Comprehensive ML documentation, causal feature engineering, leakage controls, and comparative evaluation metrics. |
+| `outputs/` | Generated figures, tables, and presentation artifacts: contains travel EDA, trip-chain, EV prototype plots, `ml_metrics.csv`, `ml_actual_vs_predicted.png`, `ml_charging_times_metrics.csv`, and charging-time diagnostic figures. |
+| `src/models/` | Reusable ML pipelines: `session_energy.py` and `charging_times.py`. |
+| `src/charging/`, `src/grid/`, other `src/` packages | Rule-based EV energy accounting and charging simulator (`src/charging/simple_ev.py`); grid packages to be integrated in Day 4. |
 | `tests/` | Only `.gitkeep`; no executable tests identified. |
 
 ## Data and schema findings

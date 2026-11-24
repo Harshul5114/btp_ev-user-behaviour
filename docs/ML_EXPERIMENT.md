@@ -66,6 +66,12 @@ From the repository root, run:
 
 The implementation is [`src/models/session_energy.py`](../src/models/session_energy.py). It reads only the raw Dataset 1 CSV and writes `outputs/ml_metrics.csv` and `outputs/ml_actual_vs_predicted.png`. The companion notebook is `notebooks/06_ml_session_energy.ipynb`.
 
+## Companion experiments & central ML documentation
+
+This experiment focuses solely on delivered energy per session (`energy_session`, kWh). A companion leakage-free ML pipeline predicting **plug-out time** (`connection_time`) and **next plug-in time** (`next_gap_hours`) with two-stage overnight classification and quantile uncertainty envelopes is implemented in [`src/models/charging_times.py`](../src/models/charging_times.py) and evaluated in [`notebooks/07_ml_plugin_plugout_times.ipynb`](../notebooks/07_ml_plugin_plugout_times.ipynb).
+
+For an overarching synthesis across all ML models, see [`docs/ML_README.md`](ML_README.md).
+
 ## Remaining limitations
 
 - The source consists of reported residential sessions from 12 sites, with different observation periods. Results may reflect site and time coverage shifts.

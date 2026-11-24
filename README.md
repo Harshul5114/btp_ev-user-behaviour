@@ -9,7 +9,7 @@ This tracker follows the deliverables in [`README_BTP_Five_Day_Plan.md`](README_
 | Plan stage | Status | Remaining work |
 |---|---|---|
 | Day 1 — Audit and reproduce | Complete | [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md) records repository/data findings, pipeline status, run guidance, reproducibility issue, and a recommended next ML target. |
-| Day 2 — One defensible ML experiment | Complete | [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md) documents a leakage-aware future-session energy experiment with chronological and unseen-user evaluations. Metrics and a held-out plot are saved in `outputs/`. |
+| Day 2 — Defensible ML experiments | Complete | [`docs/ML_README.md`](docs/ML_README.md) and [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md) document two leakage-aware experiments: (1) future-session energy prediction and (2) plug-in/plug-out timing with NHTS empirical priors and quantile intervals. Metrics and plots are saved in `outputs/`. |
 | Day 3 — Charging-demand comparison | Prototype complete; plan deliverable partial | The immediate-home baseline and separate synthetic terminal-Home scenario run on the same feasible sample. Still assess whether a defensible data-informed improvement is possible, record energy/accounting checks in the planned charging-simulation document, and present a complete comparison. |
 | Day 4 — Grid integration or bounded alternative | Not started | Audit for an existing feeder, base loads, bus mapping, and power-flow case. If absent, document the required data and a bounded demand-level result; do not claim grid impacts. |
 | Day 5 — Presentation and rehearsal | Not started | Build and rehearse the 12–14 slide presentation with sourced, reproducible figures and clearly labelled measured, derived, inferred, and assumed quantities. |
@@ -25,13 +25,15 @@ This tracker follows the deliverables in [`README_BTP_Five_Day_Plan.md`](README_
 - **Two aggregate profiles:** the observed-window scenario uses only reconstructed internal NHTS Home gaps. The separate synthetic overnight scenario assumes terminal Home parking until the same vehicle-day's first-departure clock time the next day. The assumption and midnight handling are documented in [`docs/methodology/simple_ev_prototype.md`](docs/methodology/simple_ev_prototype.md). Figures are saved under `outputs/figures/ev_load_prototype/`.
 - **Repository audit:** [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md) summarizes the current pipeline, data sources/counts, execution notes, and the rationale for the session-energy experiment.
 - **Session-energy ML experiment:** [`notebooks/06_ml_session_energy.ipynb`](notebooks/06_ml_session_energy.ipynb) and [`src/models/session_energy.py`](src/models/session_energy.py) predict reported energy for a future Norway residential charging session. [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md) reports chronological and unseen-user results separately, with metrics in `outputs/ml_metrics.csv` and a held-out plot in `outputs/ml_actual_vs_predicted.png`.
+- **Plug-in and plug-out time ML experiment:** [`notebooks/07_ml_plugin_plugout_times.ipynb`](notebooks/07_ml_plugin_plugout_times.ipynb) and [`src/models/charging_times.py`](src/models/charging_times.py) predict plug-out duration (`connection_time`) via two-stage overnight classification and next plug-in timing (`next_gap_hours`) using causal user history, calendar context, and empirical 2022 NHTS mobility priors. Provides $p_{10}, p_{50}, p_{90}$ quantile uncertainty envelopes, evaluated on chronological (warm and cold-start users) and unseen-user holdouts. Metrics are in `outputs/ml_charging_times_metrics.csv` and diagnostic plots in `outputs/`.
+- **Central ML documentation:** [`docs/ML_README.md`](docs/ML_README.md) synthesises both ML models, causal feature engineering, leakage controls, and comparative findings.
 
 ### Current scope limits
 
 - The EV parameters and overnight terminal stay are assumptions, not NHTS observations.
 - Aggregate vehicle-day curves are unweighted sample simulations, not a regional or national demand forecast.
-- Norway charging data are analysed separately; no NHTS–Norway model fusion is implemented.
-- The only ML result predicts recorded residential-session energy. It does not predict charging occurrence, map sessions to NHTS vehicle-days, or estimate population demand.
+- Norway charging data and NHTS mobility data are bridged via empirical prior distributions; individual records remain separate.
+- The ML results predict recorded residential session energy, connection duration, and inter-session gap hours. They do not predict nationwide EV adoption or full power-system bus voltages yet.
 - The repository has no final presentation yet.
 
 ## Intended pipeline
