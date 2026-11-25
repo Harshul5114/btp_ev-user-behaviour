@@ -29,6 +29,10 @@ Thumbs.db
 !/data/interim/.gitkeep
 !/data/processed/.gitkeep
 
+# Synthetic generated data
+/data/synthetic/*
+!/data/synthetic/.gitkeep
+
 # Generated artefacts: preserve folder placeholders only.
 /outputs/*
 !/outputs/.gitkeep
