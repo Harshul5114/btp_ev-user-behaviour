@@ -114,7 +114,7 @@ def _power_and_soc(events: pd.DataFrame, params: EVParameters) -> tuple[np.ndarr
                 fraction = (SOC_TIMES_MIN >= event.end_min).astype(float)
             battery -= event.driving_kwh * fraction
         elif event.grid_charge_kwh > 0:
-            start, end = event.start_min, event.charge_end_min
+            start, end = event.charge_start_min, event.charge_end_min
             overlap = np.maximum(0, np.minimum(BIN_STARTS_MIN + BIN_MIN, end)
                                  - np.maximum(BIN_STARTS_MIN, start))
             power += params.home_charger_grid_kw * overlap / BIN_MIN
@@ -125,13 +125,19 @@ def _power_and_soc(events: pd.DataFrame, params: EVParameters) -> tuple[np.ndarr
 
 
 def simulate_vehicle(legs: pd.DataFrame, gaps: pd.DataFrame,
-                     params: EVParameters) -> SimulationResult:
+                     params: EVParameters, *,
+                     home_charge_not_before_min: float | None = None) -> SimulationResult:
     """Drive each leg, then charge immediately during eligible internal Home gaps.
 
     A trip requiring more energy than is available returns ``feasible=False`` with
     a flagged event. It does not silently clip the battery to zero. No pre-first
     or post-final parking is synthesized.
+
+    If supplied, Home charging cannot begin before this absolute survey-day
+    minute (1380 = 23:00); earlier Home gaps may therefore receive no charge.
     """
+    if home_charge_not_before_min is not None and not np.isfinite(home_charge_not_before_min):
+        raise ValueError("Charging threshold must be finite")
     vehicle_id, legs, gap_by_arrival = _validate_chain(legs, gaps)
     battery = params.battery_capacity_kwh * params.initial_soc
     target = params.battery_capacity_kwh * params.target_soc
@@ -179,9 +185,11 @@ def simulate_vehicle(legs: pd.DataFrame, gaps: pd.DataFrame,
         park_start, park_end = float(gap.parking_start_min), float(gap.parking_end_min)
         before = battery
         charging_minutes = 0.0
+        charge_start = max(park_start, home_charge_not_before_min
+                           if home_charge_not_before_min is not None else park_start)
         if gap.destination_group == "Home" and battery < target - _TOL:
             needed_grid_kwh = (target - battery) / params.charging_efficiency
-            charging_minutes = min(park_end - park_start,
+            charging_minutes = min(max(0., park_end - charge_start),
                                    60 * needed_grid_kwh / params.home_charger_grid_kw)
         grid_kwh = params.home_charger_grid_kw * charging_minutes / 60
         stored_kwh = params.charging_efficiency * grid_kwh
@@ -199,7 +207,8 @@ def simulate_vehicle(legs: pd.DataFrame, gaps: pd.DataFrame,
                            battery_before_kwh=before, battery_after_kwh=battery,
                            soc_before=before / params.battery_capacity_kwh,
                            soc_after=battery / params.battery_capacity_kwh,
-                           charge_end_min=(park_start + charging_minutes
+                           charge_start_min=(charge_start if grid_kwh > 0 else np.nan),
+                           charge_end_min=(charge_start + charging_minutes
                                            if grid_kwh > 0 else np.nan)))
 
     table = pd.DataFrame(events)
@@ -216,7 +225,8 @@ def simulate_vehicle(legs: pd.DataFrame, gaps: pd.DataFrame,
 
 
 def reconstruct_terminal_home_charge(legs: pd.DataFrame, baseline: SimulationResult,
-                                     params: EVParameters) -> SyntheticOvernightCharge:
+                                     params: EVParameters, *,
+                                     home_charge_not_before_min: float | None = None) -> SyntheticOvernightCharge:
     """Add a synthetic Home stay after the final trip, with next-day departure.
 
     The next departure is the same vehicle-day's first departure plus 24 hours.
@@ -224,6 +234,8 @@ def reconstruct_terminal_home_charge(legs: pd.DataFrame, baseline: SimulationRes
     Any portion after next-day 04:00 is folded onto the representative 04:00–04:00
     clock profile; this is a cyclic scenario assumption, not a second observation.
     """
+    if home_charge_not_before_min is not None and not np.isfinite(home_charge_not_before_min):
+        raise ValueError("Charging threshold must be finite")
     if not baseline.feasible:
         raise ValueError("Terminal charging requires a feasible baseline result")
     if len(baseline.power_kw) != len(BIN_STARTS_MIN):
@@ -242,16 +254,18 @@ def reconstruct_terminal_home_charge(legs: pd.DataFrame, baseline: SimulationRes
     remaining_kwh = params.battery_capacity_kwh * (params.target_soc - baseline.soc_fraction[-1])
     if remaining_kwh <= _TOL:
         return SyntheticOvernightCharge(power, arrival, departure, arrival)
-    charge_end = min(departure, arrival + 60 * remaining_kwh
+    charge_start = min(departure, max(arrival, home_charge_not_before_min
+                                     if home_charge_not_before_min is not None else arrival))
+    charge_end = min(departure, charge_start + 60 * remaining_kwh
                      / (params.charging_efficiency * params.home_charger_grid_kw))
     # The survey starts at 04:00. Fold the next morning's charging back into
     # that clock position, so both scenarios have the same 96-bin axis.
     for day_offset in (0, 1440):
         starts = BIN_STARTS_MIN + day_offset
         overlap = np.maximum(0, np.minimum(starts + BIN_MIN, charge_end)
-                             - np.maximum(starts, arrival))
+                             - np.maximum(starts, charge_start))
         power += params.home_charger_grid_kw * overlap / BIN_MIN
-    expected = params.home_charger_grid_kw * (charge_end - arrival) / 60
+    expected = params.home_charger_grid_kw * (charge_end - charge_start) / 60
     if not np.isclose(power.sum() * BIN_MIN / 60, expected, atol=_TOL):
         raise AssertionError("Synthetic charging energy was lost at the day boundary")
     if np.max(baseline.power_kw + power) > params.home_charger_grid_kw + _TOL:

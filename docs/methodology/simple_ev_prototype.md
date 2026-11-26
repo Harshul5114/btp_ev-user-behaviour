@@ -2,6 +2,13 @@
 
 Implementation: `src/charging/simple_ev.py`; reproducible analysis and figures: `notebooks/05_ev_load_prototype.ipynb`.
 
+The optional `home_charge_not_before_min` argument now supports delayed Home
+charging in both the internal-gap and synthetic-terminal functions. The default
+remains immediate charging and reproduces the original aggregates. Parking
+events retain their observed `start_min`; `charge_start_min` records the actual
+charging start. See [charging_policy_comparison.md](charging_policy_comparison.md)
+for the separate fixed-cohort policy comparison and charger sensitivity run.
+
 ## Input and selection
 
 The simulator reads the **interim** `vehicle_trip_chains.csv` and `vehicle_parking_intervals.csv` created by notebook 03. Their fields are defined in [vehicle_trip_chain_schema.md](vehicle_trip_chain_schema.md). A day enters the prototype if it has at least two candidate driver legs, complete reported-purpose continuity, all trips within the NHTS 04:00–04:00 survey window, and one eligible internal gap after each nonfinal leg. Gap keys and endpoints are checked against the trip sequence. The input is person-reported candidate vehicle movement, not verified GPS continuity. Trip weights are not applied to these derived vehicle-day charging events.

@@ -4,20 +4,28 @@ B.Tech Project in Electrical Engineering, IIT Delhi. The project studies how tra
 
 ## Project progress
 
+**Active research priority:** meaningful EV user-behaviour prediction. Follow
+[`docs/ML_COMPLETION_PLAN.md`](docs/ML_COMPLETION_PLAN.md): reproduce and audit
+existing ML, evaluate timing/energy against strong baselines, use synthetic data
+for controlled studies where needed, and prepare the presentation. Charging
+policy comparisons are supporting results; grid integration is deferred.
+
 This tracker follows the deliverables in [`README_BTP_Five_Day_Plan.md`](README_BTP_Five_Day_Plan.md). Status is based on files and outputs present in this repository; it does not imply that a result is final or publication-ready. Update this table and the evidence below whenever a feature or deliverable is added or materially revised.
 
 | Plan stage | Status | Remaining work |
 |---|---|---|
 | Day 1 — Audit and reproduce | Complete | [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md) records repository/data findings, pipeline status, run guidance, reproducibility issue, and a recommended next ML target. |
-| Day 2 — Defensible ML experiments | Complete | [`docs/ML_README.md`](docs/ML_README.md) and [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md) document two leakage-aware experiments: (1) future-session energy prediction and (2) plug-in/plug-out timing with NHTS empirical priors and quantile intervals. Metrics and plots are saved in `outputs/`. |
-| Day 3 — Charging-demand comparison | Prototype complete; plan deliverable partial | The immediate-home baseline and separate synthetic terminal-Home scenario run on the same feasible sample. Still assess whether a defensible data-informed improvement is possible, record energy/accounting checks in the planned charging-simulation document, and present a complete comparison. |
+| Day 2 — Defensible ML experiments | Corrected baseline benchmark complete | The [ML audit](docs/ML_AUDIT_RESULTS.md) reports current results for all three targets. Uncertainty and history-length diagnostics remain. |
+| Day 3 — Charging-demand comparison | Implemented; see updated presentation priority | Immediate versus 23:00 charging and 3.7/7.4/11 kW sensitivity use one common feasible Home-to-Home cohort. Accounting, exclusions and scenario limits are documented in `docs/methodology/charging_policy_comparison.md`. ML integration remains separate. |
 | Day 4 — Grid integration or bounded alternative | Not started | Audit for an existing feeder, base loads, bus mapping, and power-flow case. If absent, document the required data and a bounded demand-level result; do not claim grid impacts. |
 | Day 5 — Presentation and rehearsal | Not started | Build and rehearse the 12–14 slide presentation with sourced, reproducible figures and clearly labelled measured, derived, inferred, and assumed quantities. |
 
-**Progress summary:** Days 1–2 are complete. Data exploration, charging-data analysis, and the EV prototype are present; Day 3's planned comparison deliverable is partial. Grid assessment/bounded alternative and the final presentation remain. This is a deliverable status, not a percentage of total project effort.
+**Progress summary:** Data exploration, charging-data analysis, the EV prototype and a fixed-cohort charging-policy comparison are present. The audited ML benchmark now provides corrected timing and energy results. Further ML diagnostics and the final presentation remain.
 
 ### Completed work and evidence
 
+- **Charging policy comparison:** `python -m src.charging.compare_policies` writes policy metrics, cohort exclusions and profiles to `outputs/tables/charging_comparison/`, with presentation figures under `outputs/figures/charging_comparison/`. See [`docs/methodology/charging_policy_comparison.md`](docs/methodology/charging_policy_comparison.md) for the identical parking assumptions, fixed cohort and charger sensitivity.
+- **Charging baseline validation (2026-11-26):** `python -m src.charging.validate_prototype` reproduces both existing aggregates for 6,136 feasible vehicle-days and saves accounting checks under `outputs/tables/prototype_validation/`. Four synthetic terminal-charging tests pass. See [`docs/methodology/prototype_validation.md`](docs/methodology/prototype_validation.md) for counts, limits and the next comparison; ML reproduction remains pending.
 - **NHTS inspection and mobility EDA:** numbered notebooks `01_data_inspection.ipynb` and `02_travel_eda.ipynb` inspect the source tables and produce travel-pattern summaries and figures.
 - **Trip chains and parking intervals:** `03_trip_chains.ipynb` builds candidate vehicle-day chains and interim internal gaps. Variable mappings and caveats are documented in [`docs/methodology/`](docs/methodology/).
 - **Norway charging data analysis:** `04_ev_charging_data_analysis.ipynb` analyses reported charging sessions, timing, duration, energy, and user variation separately from NHTS. It does not fuse those sessions with NHTS vehicle days.

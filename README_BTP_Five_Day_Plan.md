@@ -1,6 +1,82 @@
 # BTP Five-Day Plan for Codex
 
-## Objective
+## Active priority — meaningful behaviour-prediction results
+
+The active plan is [ML_COMPLETION_PLAN.md](docs/ML_COMPLETION_PLAN.md).
+It supersedes all priorities and sequencing below. Focus on reproducible
+next-event timing, connection duration and session-energy prediction, strong
+baselines, causal evaluation and clearly labelled synthetic studies if useful.
+Charging-policy comparisons are supporting work; further optimization and grid
+integration are deferred until the ML results and presentation are complete.
+
+## Historical charging-demand plan — superseded
+
+Complete one validated result from travel behaviour to aggregate charging
+demand, and build the presentation around that result. This priority order
+supersedes the day-by-day ordering below where they differ. Additional ML
+development is not a prerequisite for completing the main result.
+
+**Central research question:** How do travel schedules and charging timing
+affect aggregate EV peak demand?
+
+Progress on 2026-11-26: charging-baseline reproduction and accounting checks
+completed for 6,136 feasible vehicle-days; four synthetic overnight boundary
+tests passed. See `docs/methodology/prototype_validation.md`. The remaining
+validation work includes ML reproduction and documentation reconciliation.
+
+Charging comparison is also completed: immediate versus 23:00 charging at
+3.7/7.4/11 kW on the same 5,647 feasible Home-to-Home vehicle-days, with two
+presentation figures and energy/deficit accounting. At 7.4 kW the synchronized
+delay raises the EV-only peak from 9.78 MW to 41.25 MW. See
+`docs/methodology/charging_policy_comparison.md`. Next priorities are packaging
+these findings for the presentation and assessing the bounded grid step;
+staggered charging is a possible follow-up, not an established result.
+
+1. **Validate and freeze existing results.** Reproduce the relevant notebooks
+   and scripts; resolve missing ML artifacts, dependency gaps and discrepancies
+   between documentation and saved metrics. Verify trip-chain, SoC and energy
+   accounting. Retain ML conclusions only where evaluation supports them;
+   report weak results and unseen-user limitations explicitly.
+2. **Complete the charging-demand experiment.** Compare immediate Home
+   charging with delayed overnight charging on the same NHTS vehicle sample,
+   using identical energy requirements and availability assumptions. Document
+   the delayed-charging rule before implementation. Keep observed internal
+   parking windows separate from assumed terminal overnight parking; use the
+   same terminal-parking assumption for both policies in the overnight
+   comparison. Report the simulation horizon and handle midnight consistently.
+3. **Produce a compact comparison table and plot.** Report grid-side delivered
+   energy, unmet battery-energy requirement by departure, peak demand, peak
+   time and peak reduction. Check charger limits, efficiency, SoC bounds and
+   energy conservation. Explain any difference in energy served so that
+   unserved demand is not presented as a charging-management benefit.
+4. **Test sensitivity.** Use a small, documented range of charger powers and
+   EV energy-consumption assumptions. Keep the vehicle cohort consistent and
+   report whether the principal conclusion survives these changes. These are
+   scenario assumptions, not measured vehicle parameters.
+5. **Add a bounded grid demonstration if feasible.** Use a documented test
+   feeder, establish a no-EV baseline, then compare voltage and losses for
+   both charging policies. Explicitly document base loads, EV penetration and
+   vehicle-to-bus allocation. If this cannot be completed and checked in time,
+   deliver the validated demand-level comparison and state the grid work still
+   required; do not claim measured or simulated grid impacts without results.
+6. **Build and rehearse the presentation.** Follow the evidence:
+   dataset and provenance -> mobility findings -> trip chains -> EV and
+   parking assumptions -> charging-demand comparison -> sensitivity -> grid
+   demonstration if completed -> limitations and next work. Select a small
+   number of readable figures with units, sample sizes and interpretations.
+
+**Minimum completed presentation output:** a reproducible demand comparison,
+energy/accounting checks, a sensitivity summary, and a finished slide deck
+with a defensible answer to the central question. A peak reduction need not
+be guaranteed; report the actual result and its limits.
+
+Norway session-energy and timing ML remain supporting experiments until
+their reproducibility, baseline advantage and connection to the charging
+simulation are established. NHTS and Norway records must not be treated as
+matched users. Aggregate NHTS curves remain unweighted sample scenarios,
+not regional or national demand forecasts.
+
+## Original five-day objective and supporting plan
 
 Deliver the strongest defensible final BTP result in five days.
 Prioritize reproducibility, one evaluated ML task, charging-demand

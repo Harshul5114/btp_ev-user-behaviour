@@ -1,5 +1,9 @@
 # Machine Learning in EV User Behaviour & Charging Modelling
 
+The [audited real-data results](ML_AUDIT_RESULTS.md) are the current benchmark.
+The experiments below record the previous protocol and its reported scores.
+See the audit for the differences in label availability, splits and baselines.
+
 This document synthesises the machine-learning models developed for the IIT Delhi Electrical Engineering B.Tech Project (BTP).
 
 The project studies how travel behaviour and residential EV charging data can be translated into spatial-temporal charging demand profiles for power-system analysis. Rather than replacing physical energy conservation or network power-flow physics with a black-box model, ML is deployed specifically to learn **uncertain user behaviour**:

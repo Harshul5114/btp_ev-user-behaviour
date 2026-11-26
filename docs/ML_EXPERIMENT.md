@@ -1,5 +1,9 @@
 # Future-session EV charging-energy prediction
 
+The [audited benchmark](ML_AUDIT_RESULTS.md) reports the current energy results
+with completion-time history and training labels. This document describes the
+previous experiment.
+
 ## Question and target
 
 This experiment predicts the reported **delivered energy** for a future residential charging session in Norway. The target is Dataset 1 `energy_session`, in kWh. It predicts energy conditional on a session being recorded; it does not predict whether a driver will charge, where they will charge, battery SoC, or national EV demand.
