@@ -187,6 +187,8 @@ avoid extensive low-value unit tests, new dashboards or unrelated restructuring.
 are available for all three targets. The prior timing command remains
 unreproduced. Use the audited command for current results.
 
-**Next action:** quantify paired uncertainty and inspect history length and
-long gaps. Use those findings to decide whether a controlled synthetic
-regularity study would help explain the real-data results.
+**Diagnostics complete:** paired user resampling, history-length analysis and
+next-gap error breakdown are documented in the audit, with two presentation
+figures. Connection duration has the clearest supported gain. A controlled
+synthetic study remains optional for isolating history length from schedule
+regularity.

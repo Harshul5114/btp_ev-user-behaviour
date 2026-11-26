@@ -103,7 +103,11 @@ def evaluate(name, protocol, train, test, observed_test):
                              mae=error.mean(), rmse=np.sqrt(np.mean(error ** 2)),
                              within_6h=float((error <= 6).mean()) if name != "energy_kwh" else None,
                              within_24h=float((error <= 24).mean()) if name != "energy_kwh" else None))
-    return rows
+    paired = test[["user_id", "target"]].copy()
+    paired["history_count"] = test_x.history_count
+    for method in ("training_median", "history_median", "gradient_boosting_mae"):
+        paired[method] = np.abs(predictions[method] - test.target)
+    return rows, paired
 
 
 def run(root):
@@ -115,16 +119,19 @@ def run(root):
     _, held = next(splitter.split(users, groups=users))
     held_users = {users[index] for index in held}
     results = []
+    chronological = {}
     splits = {}
     for name, frame in targets.items():
         train = frame.loc[frame.available.lt(cutoff) & frame.origin.lt(cutoff)]
         test = frame.loc[frame.origin.ge(cutoff)]
         splits[name] = dict(eligible=len(frame), training=len(train), test=len(test),
                             purged=int((frame.origin.lt(cutoff) & frame.available.ge(cutoff)).sum()))
-        results.extend(evaluate(name, "chronological", train, test, frame))
+        rows, chronological[name] = evaluate(name, "chronological", train, test, frame)
+        results.extend(rows)
         group_test = frame.user_id.isin(held_users)
-        results.extend(evaluate(name, "unseen_user", frame.loc[~group_test],
-                                frame.loc[group_test], frame.loc[~group_test]))
+        rows, _ = evaluate(name, "unseen_user", frame.loc[~group_test],
+                           frame.loc[group_test], frame.loc[~group_test])
+        results.extend(rows)
         print(f"{name}: {splits[name]}", flush=True)
     out = root / "outputs/tables/audited_ml"
     out.mkdir(parents=True, exist_ok=True)
@@ -133,6 +140,8 @@ def run(root):
     metadata = dict(counts=counts, splits=splits, cutoff=str(cutoff), random_seed=RANDOM_SEED,
                     held_out_users=len(held_users))
     (out / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    from .behaviour_diagnostics import save_diagnostics
+    save_diagnostics(root, chronological, RANDOM_SEED)
     return metrics
 
 

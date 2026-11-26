@@ -63,7 +63,38 @@ the model is within six hours for 66.1% of events versus 57.5% for the user
 history median. The zero-history holdout favours simple baselines by MAE
 for all three targets.
 
-These are point estimates from a reused historical evaluation period. The
-benchmark does not retune hyperparameters or validate the previous quantile
-intervals. Use paired uncertainty estimates and history-length diagnostics
-before making claims about the reliability of small differences.
+## Uncertainty, available history and long gaps
+
+The same command also generates `paired_bootstrap.csv`, `history_length.csv`
+and `next_gap_bins.csv` in the metrics directory. The two figures are under
+`outputs/figures/audited_ml/`.
+
+The paired bootstrap samples test users with replacement 5,000 times, keeping
+each sampled user's sessions together and recomputing session-weighted MAE for
+both predictors on the same draw. Positive gain means lower MAE for boosting.
+The percentile intervals reflect variation across test users with these fitted
+models and this historical period held fixed. The earlier quantile prediction
+intervals remain outside this check.
+
+| Target | MAE gain over history median | Paired 95% interval |
+|---|---:|---:|
+| Next recorded plug-in | 1.43 h | −0.49 to 4.15 h |
+| Connection duration | 0.58 h | 0.41 to 0.75 h |
+| Session energy | 0.12 kWh | −0.04 to 0.26 kWh |
+
+**Connection duration has the clearest gain**, about 35 minutes on average
+across 7,071 sessions from 228 users. The other two intervals span zero.
+
+Next-plug-in MAE is much lower in sessions with more available history. At 50+
+prior gap observations, the user-history median and boosting are effectively
+tied at 27.69 and 27.77 h. Connection-duration error does not follow a monotonic
+pattern by history length. The bins contain different mixes of users and sessions,
+so these differences describe the observed cohort rather than estimating the
+effect of adding history for the same user.
+
+Gaps over seven days account for 537 of 6,836 test cases (7.9%). On those gaps,
+boosting has 299.30 h MAE versus 284.16 h for the history median. They offset
+1.19 h of the overall gain. The net improvement comes from gaps of seven days
+or less, with gains in each of the three shorter-gap bins relative to the
+history median. These bins are based on observed outcomes and serve as an
+error diagnostic.
