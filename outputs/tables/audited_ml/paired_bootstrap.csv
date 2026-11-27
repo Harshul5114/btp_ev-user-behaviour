@@ -1,0 +1,10 @@
+target,method,estimate,ci_low,ci_high,users,sessions,resamples,seed
+next_plugin_hours,history_median,46.032830,37.150279,57.926290,200,6836,5000,42
+next_plugin_hours,gradient_boosting_mae,44.607680,36.288318,55.595708,200,6836,5000,42
+next_plugin_hours,baseline_minus_model,1.425149,-0.490857,4.153230,200,6836,5000,42
+connection_hours,history_median,8.355023,7.199237,9.683897,228,7071,5000,42
+connection_hours,gradient_boosting_mae,7.778978,6.539822,9.166168,228,7071,5000,42
+connection_hours,baseline_minus_model,0.576045,0.410877,0.751019,228,7071,5000,42
+energy_kwh,history_median,5.639718,4.704239,6.694154,228,7071,5000,42
+energy_kwh,gradient_boosting_mae,5.522846,4.626991,6.515592,228,7071,5000,42
+energy_kwh,baseline_minus_model,0.116872,-0.035928,0.264394,228,7071,5000,42

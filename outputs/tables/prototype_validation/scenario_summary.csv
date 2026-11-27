@@ -1,0 +1,3 @@
+scenario,grid_energy_kwh,peak_kw,peak_bin_start,peak_day_offset
+observed_internal_only,10767.906039402624,1240.762346542035,12:45,0
+synthetic_terminal_home,86606.007731221,10138.099033032291,18:00,0

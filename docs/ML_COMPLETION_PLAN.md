@@ -192,3 +192,14 @@ next-gap error breakdown are documented in the audit, with two presentation
 figures. Connection duration has the clearest supported gain. A controlled
 synthetic study remains optional for isolating history length from schedule
 regularity.
+
+**Similar-user pilot:** connection-duration forecasts for held-out users with
+1, 3, 5 or 10 completed sessions are compared in [ML_SIMILAR_USERS.md](ML_SIMILAR_USERS.md).
+
+**Feature follow-up:** [ML_SIMILAR_USERS_HYBRID.md](ML_SIMILAR_USERS_HYBRID.md)
+compares personal and similar-user features on the same checkpoints.
+
+**Synthetic benchmark complete:** [ML_SYNTHETIC_BENCHMARK.md](ML_SYNTHETIC_BENCHMARK.md)
+compares eight methods across nine datasets calibrated on Norway and Electric
+Nation training sessions. Original boosting led eight of twelve scenario and
+history rankings by mean MAE.

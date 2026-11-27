@@ -11,7 +11,7 @@ env/
 .mypy_cache/
 .coverage
 htmlcov/
-.tmp/matplotlib/
+/.tmp/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -50,3 +50,4 @@ Thumbs.db
 !/outputs/figures/.gitkeep
 !/outputs/tables/.gitkeep
 !/outputs/presentation/.gitkeep
+!/outputs/presentation/BTP_EV_Charging_Behaviour_Expanded_Methods.pptx
